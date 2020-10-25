@@ -24,7 +24,7 @@ env = environ.Env()
 SECRET_KEY = '@4+hsj28q5ubiw36g782q#tz%x=r%zi*mbtfe^)02*)1@^tmbz'
 
 # SECURITY WARNING: don't run with debug turned on in production!
-DEBUG = True
+DEBUG = False
 
 ALLOWED_HOSTS = ['localhost', '127.0.0.1', '0.0.0.0']
 
