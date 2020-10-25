@@ -7,9 +7,9 @@ jobs:
       db:
         image: postgres
         env:
+          POSTGRES_DB: db_test
           POSTGRES_USER: user
           POSTGRES_PASSWORD: password
-          POSTGRES_DB: db_test
         ports:
           - 5432:5432
         # needed because the postgres container does not provide a health check
@@ -37,13 +37,13 @@ jobs:
           github_token: ${{ secrets.github_token }}
           black: true
           flake8: true
-      # - 
-      #   name: Run migrations
-      #   run: python manage.py migrate
-      #   env:
-      #     POSTGRES_DB: db_test
-      #     POSTGRES_USER: user
-      #     POSTGRES_PASSWORD: password
+      - 
+        name: Run migrations
+        run: python manage.py migrate
+        env:
+          POSTGRES_DB: db_test
+          POSTGRES_USER: user
+          POSTGRES_PASSWORD: password
       -
         name: Set up QEMU
         uses: docker/setup-qemu-action@v1
