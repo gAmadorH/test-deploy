@@ -31,12 +31,16 @@ jobs:
           python -m pip install --upgrade pip
           pip install -r requirements.txt
           pip install pytest-django
-      - name: set env
+      - 
+        name: set env
         run: echo $POSTGRES_DB $POSTGRES_USER $POSTGRES_PASSWORD
         env:
           POSTGRES_DB: db_test
           POSTGRES_USER: user
           POSTGRES_PASSWORD: password
+      - 
+        name: Run migrations
+        run: python manage.py migrate
       -
         name: Set up QEMU
         uses: docker/setup-qemu-action@v1
