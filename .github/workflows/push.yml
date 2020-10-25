@@ -1,45 +1,17 @@
-name: ci
-
-on:
-  push:
-    branches:
-      - main
-
+on: push
+name: deploy
 jobs:
-  main:
+  deploy:
+    name: deploy to cluster
     runs-on: ubuntu-latest
     steps:
-      - name: Prepare
-        if: success()
-        id: prepare
-        run: |
-          echo ::set-output name=docker_platforms::linux/amd64,linux/arm/v6,linux/arm/v7,linux/arm64,linux/386,linux/ppc64le,linux/s390x
-          echo ::set-output name=docker_username::miigotu
-          echo ::set-output name=docker_image::docker.io/miigotu/sickchill
-          echo ::set-output name=version::${GITHUB_REF#refs/*/}
-          echo ::set-output name=hash::${GITHUB_SHA}
-      - name: Docker Login
-        if: success()
-        env:
-          DOCKER_PASSWORD: ${{ secrets.DOCKER_PASSWORD }}
-        run: |
-          echo "${DOCKER_PASSWORD}" | docker login --username "${DOCKER_USERNAME}" --password-stdin docker.io
-      - name: Run Buildx (master)
-        if: success() && contains(steps.prepare.outputs.version, 'master')
-        run: |
-          docker buildx build \
-            --output type=image,name=${{ steps.prepare.outputs.docker_image }},push=true \
-            --platform ${{ steps.prepare.outputs.docker_platforms }} \
-            --tag "${{ steps.prepare.outputs.docker_image }}:${{ steps.prepare.outputs.version }}" \
-            --tag "${{ steps.prepare.outputs.docker_image }}:${{ steps.prepare.outputs.hash }}" \
-            --tag "${{ steps.prepare.outputs.docker_image }}:latest" \
-            --file Dockerfile .
-      - name: Run Buildx (non-master)
-        if: success() && !contains(steps.prepare.outputs.version, 'master')
-        run: |
-          docker buildx build \
-            --output type=image,name=${{ steps.prepare.outputs.docker_image }},push=true \
-            --platform ${{ steps.prepare.outputs.docker_platforms }} \
-            --tag "${{ steps.prepare.outputs.docker_image }}:${{ steps.prepare.outputs.version }}" \
-          --tag "${{ steps.prepare.outputs.docker_image }}:${{ steps.prepare.outputs.hash }}" \
-            --file Dockerfile .
+    - uses: actions/checkout@master
+    - name: build and push to docker
+      uses: docker/build-push-action@v1
+      with:
+        username: ${{ secrets.DOCKER_USERNAME }}
+        password: ${{ secrets.DOCKER_PASSWORD }}
+        repository: ${{ github.repository }}
+        tag_with_ref: true
+        tag_with_sha: true
+        tags: ${{ github.sha }}
